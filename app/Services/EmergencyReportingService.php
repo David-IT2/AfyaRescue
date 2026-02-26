@@ -28,6 +28,9 @@ class EmergencyReportingService
                     ->orWhere('phone', 'like', '%' . $term . '%');
             });
         }
+        if (! empty($filters['patient_id'])) {
+            $q->where('patient_id', $filters['patient_id']);
+        }
         if (! empty($filters['status'])) {
             $q->where('status', $filters['status']);
         }

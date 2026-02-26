@@ -15,10 +15,15 @@ class Ambulance extends Model
     public const STATUS_BUSY = 'busy';
     public const STATUS_MAINTENANCE = 'maintenance';
 
+    public const TYPE_BASIC = 'basic';
+    public const TYPE_ADVANCED = 'advanced';
+    public const TYPE_ICU = 'icu';
+
     protected $fillable = [
         'hospital_id',
         'driver_id',
         'plate_number',
+        'type',
         'status',
         'latitude',
         'longitude',

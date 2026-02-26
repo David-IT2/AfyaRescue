@@ -3,22 +3,19 @@
 namespace App\Services;
 
 use App\Models\Ambulance;
+use App\Models\AssignmentLog;
 use App\Models\Emergency;
 use App\Models\Hospital;
 
 /**
- * Optimized ambulance assignment: nearest by Haversine distance, optionally by hospital level.
- * Updates ambulance status (Available → Assigned) and sets ETA on emergency for analytics.
+ * Advanced matching: distance (Haversine), hospital level, ambulance type, driver skill.
+ * Critical emergencies prefer ICU/advanced ambulances and critical_care drivers.
+ * Logs every assignment for performance analysis.
  */
 class AmbulanceAssignmentService
 {
-    /** Average speed km/h for ETA calculation. */
     private const AVG_SPEED_KMH = 40;
 
-    /**
-     * Find nearest available ambulance for the emergency's hospital.
-     * Prefers ambulances from same or higher hospital level when emergency is Critical.
-     */
     public function findNearestAvailableAmbulance(Emergency $emergency): ?Ambulance
     {
         $hospital = $emergency->hospital;
@@ -27,7 +24,7 @@ class AmbulanceAssignmentService
             ->whereNotNull('driver_id')
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
-            ->with('hospital:id,level')
+            ->with(['hospital:id,level', 'driver:id,driver_skill'])
             ->get();
 
         if ($ambulances->isEmpty()) {
@@ -36,7 +33,7 @@ class AmbulanceAssignmentService
 
         $emergencyLat = (float) $emergency->latitude;
         $emergencyLng = (float) $emergency->longitude;
-        $isCritical = ($emergency->severity_category ?? '') === \App\Services\TriageService::CATEGORY_CRITICAL;
+        $isCritical = ($emergency->severity_category ?? '') === TriageService::CATEGORY_CRITICAL;
         $hospitalLevel = (int) $hospital->level;
 
         $scored = $ambulances->map(function (Ambulance $a) use ($emergencyLat, $emergencyLng, $isCritical, $hospitalLevel) {
@@ -46,11 +43,21 @@ class AmbulanceAssignmentService
                 (float) $a->latitude,
                 (float) $a->longitude
             );
-            $levelBonus = 0;
-            if ($isCritical && isset($a->hospital->level)) {
-                $levelBonus = ($a->hospital->level <= $hospitalLevel) ? 0 : -10;
+            $sortKey = $distanceKm;
+            if ($isCritical) {
+                $typeScore = match ($a->type ?? 'basic') {
+                    'icu' => -5,
+                    'advanced' => -2,
+                    default => 0,
+                };
+                $skillScore = match ($a->driver->driver_skill ?? 'basic') {
+                    'critical_care' => -3,
+                    'advanced' => -1,
+                    default => 0,
+                };
+                $sortKey += $typeScore + $skillScore;
             }
-            return ['ambulance' => $a, 'distance_km' => $distanceKm, 'sort_key' => $distanceKm + $levelBonus];
+            return ['ambulance' => $a, 'distance_km' => $distanceKm, 'sort_key' => $sortKey];
         });
 
         $nearest = $scored->sortBy('sort_key')->first();
@@ -68,7 +75,6 @@ class AmbulanceAssignmentService
         return round($earthRadiusKm * $c, 2);
     }
 
-    /** ETA in minutes from distance (km) and average speed. */
     public function etaMinutesFromDistanceKm(float $distanceKm): int
     {
         if ($distanceKm <= 0) {
@@ -77,9 +83,6 @@ class AmbulanceAssignmentService
         return (int) ceil(($distanceKm / self::AVG_SPEED_KMH) * 60);
     }
 
-    /**
-     * Assign ambulance to emergency: update emergency + ambulance status, set ETA.
-     */
     public function assignAmbulanceToEmergency(Emergency $emergency, Ambulance $ambulance): void
     {
         $distanceKm = $this->haversineDistanceKm(
@@ -89,6 +92,7 @@ class AmbulanceAssignmentService
             (float) $ambulance->longitude
         );
         $etaMinutes = $this->etaMinutesFromDistanceKm($distanceKm);
+        $reason = ($emergency->severity_category ?? '') === TriageService::CATEGORY_CRITICAL ? 'critical_match' : 'distance';
 
         $emergency->update([
             'ambulance_id' => $ambulance->id,
@@ -98,6 +102,15 @@ class AmbulanceAssignmentService
         ]);
         $ambulance->update([
             'status' => Ambulance::STATUS_BUSY,
+        ]);
+
+        AssignmentLog::create([
+            'emergency_id' => $emergency->id,
+            'ambulance_id' => $ambulance->id,
+            'distance_km' => $distanceKm,
+            'eta_minutes' => $etaMinutes,
+            'assignment_reason' => $reason,
+            'assigned_at' => now(),
         ]);
     }
 }

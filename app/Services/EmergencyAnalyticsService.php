@@ -3,13 +3,11 @@
 namespace App\Services;
 
 use App\Models\Emergency;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class EmergencyAnalyticsService
 {
-    /**
-     * Average response time in minutes (requested_at to assigned_at).
-     */
     public function averageAssignmentTimeMinutes(?int $hospitalId = null): ?float
     {
         $q = Emergency::whereNotNull('assigned_at')->whereNotNull('requested_at');
@@ -20,15 +18,10 @@ class EmergencyAnalyticsService
         if ($count === 0) {
             return null;
         }
-        $total = $q->get()->sum(function (Emergency $e) {
-            return $e->requested_at->diffInMinutes($e->assigned_at);
-        });
+        $total = $q->get()->sum(fn (Emergency $e) => $e->requested_at->diffInMinutes($e->assigned_at));
         return round($total / $count, 1);
     }
 
-    /**
-     * Average time from assigned to arrived (enroute time).
-     */
     public function averageEnrouteTimeMinutes(?int $hospitalId = null): ?float
     {
         $q = Emergency::whereNotNull('assigned_at')->whereNotNull('arrived_at');
@@ -39,15 +32,10 @@ class EmergencyAnalyticsService
         if ($count === 0) {
             return null;
         }
-        $total = $q->get()->sum(function (Emergency $e) {
-            return $e->assigned_at->diffInMinutes($e->arrived_at);
-        });
+        $total = $q->get()->sum(fn (Emergency $e) => $e->assigned_at->diffInMinutes($e->arrived_at));
         return round($total / $count, 1);
     }
 
-    /**
-     * Count emergencies by severity category.
-     */
     public function countBySeverityCategory(?int $hospitalId = null, ?\DateTimeInterface $from = null, ?\DateTimeInterface $to = null): Collection
     {
         $q = Emergency::query();
@@ -63,9 +51,6 @@ class EmergencyAnalyticsService
         return $q->get()->groupBy('severity_category')->map->count();
     }
 
-    /**
-     * Ambulance utilization: count of distinct ambulances used in period vs total ambulances.
-     */
     public function ambulanceUtilization(?int $hospitalId = null, ?\DateTimeInterface $from = null, ?\DateTimeInterface $to = null): array
     {
         $q = Emergency::whereNotNull('ambulance_id');
@@ -85,5 +70,27 @@ class EmergencyAnalyticsService
             'total_ambulances' => $totalAmbulances,
             'utilization_pct' => $totalAmbulances > 0 ? round($usedAmbulanceIds->count() / $totalAmbulances * 100, 1) : 0,
         ];
+    }
+
+    /** Emergencies over time: daily, weekly, or monthly buckets. */
+    public function trends(?int $hospitalId = null, string $period = 'daily', int $days = 30): array
+    {
+        $from = Carbon::now()->subDays($days);
+        $q = Emergency::where('created_at', '>=', $from);
+        if ($hospitalId) {
+            $q->where('hospital_id', $hospitalId);
+        }
+        $items = $q->get(['id', 'created_at', 'severity_category']);
+        $grouped = match ($period) {
+            'weekly' => $items->groupBy(fn ($e) => $e->created_at->startOfWeek()->format('Y-m-d')),
+            'monthly' => $items->groupBy(fn ($e) => $e->created_at->format('Y-m')),
+            default => $items->groupBy(fn ($e) => $e->created_at->format('Y-m-d')),
+        };
+        return $grouped->map(fn ($group) => [
+            'total' => $group->count(),
+            'critical' => $group->where('severity_category', \App\Services\TriageService::CATEGORY_CRITICAL)->count(),
+            'moderate' => $group->where('severity_category', \App\Services\TriageService::CATEGORY_MODERATE)->count(),
+            'mild' => $group->where('severity_category', \App\Services\TriageService::CATEGORY_MILD)->count(),
+        ])->sortKeys()->all();
     }
 }

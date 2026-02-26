@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Jobs\NotifyEmergencyStatusUpdateJob;
+use App\Jobs\NotifyNewEmergencyJob;
+use App\Models\AuditLog;
 use App\Models\Emergency;
 use Illuminate\Support\Facades\DB;
 
@@ -46,6 +49,7 @@ class EmergencyFlowService
                 'severity_category' => $result['category'],
                 'weighted_score' => $result['weighted_score'],
             ]);
+            AuditLog::log('emergency.created', Emergency::class, $emergency->id, null, ['severity_category' => $result['category']]);
 
             $ambulance = $this->ambulanceAssignment->findNearestAvailableAmbulance($emergency);
             if ($ambulance) {
@@ -60,7 +64,11 @@ class EmergencyFlowService
             return $emergency;
         });
 
-        $this->notification->notifyNewEmergency($emergency);
+        if (config('afyarescue.queue_notifications', true)) {
+            NotifyNewEmergencyJob::dispatch($emergency->id);
+        } else {
+            $this->notification->notifyNewEmergency($emergency);
+        }
         return $emergency;
     }
 
@@ -93,6 +101,7 @@ class EmergencyFlowService
             $emergency->ambulance->update(['status' => \App\Models\Ambulance::STATUS_AVAILABLE]);
         }
 
+        $oldStatus = $emergency->status;
         $emergency->update($payload);
         $eventType = match ($newStatus) {
             Emergency::STATUS_ENROUTE => EmergencyLogService::EVENT_ENROUTE,
@@ -103,7 +112,12 @@ class EmergencyFlowService
         if ($eventType) {
             $this->emergencyLog->log($emergency, $eventType);
         }
-        $this->notification->notifyEmergencyStatusUpdate($emergency);
+        AuditLog::log('emergency.status_updated', Emergency::class, $emergency->id, ['status' => $oldStatus], ['status' => $newStatus]);
+        if (config('afyarescue.queue_notifications', true)) {
+            NotifyEmergencyStatusUpdateJob::dispatch($emergency->id);
+        } else {
+            $this->notification->notifyEmergencyStatusUpdate($emergency);
+        }
         return $emergency->fresh();
     }
 

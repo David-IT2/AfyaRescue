@@ -35,8 +35,10 @@ Route::middleware(['auth', 'role:driver'])->group(function () {
     Route::post('/driver/emergency/{emergency}/status', [DriverDashboardController::class, 'updateStatus'])->name('driver.status');
 });
 
-// Super Admin: manage users, hospitals, ambulances
+// Super Admin: system health, manage users, hospitals, ambulances
 Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\SuperAdmin\SystemHealthController::class, 'index'])->name('health');
+    Route::get('/health', [\App\Http\Controllers\SuperAdmin\SystemHealthController::class, 'index'])->name('health.index');
     Route::resource('users', \App\Http\Controllers\SuperAdmin\UserManagementController::class)->except(['show', 'destroy']);
     Route::resource('hospitals', \App\Http\Controllers\SuperAdmin\HospitalManagementController::class)->except(['show', 'destroy']);
     Route::resource('ambulances', \App\Http\Controllers\SuperAdmin\AmbulanceManagementController::class)->except(['show', 'destroy']);
@@ -48,4 +50,10 @@ Route::get('/hospital', [HospitalDashboardController::class, 'index'])
     ->middleware(['auth', 'role:hospital_admin,super_admin']);
 Route::get('/hospital/export', [HospitalDashboardController::class, 'exportCsv'])
     ->name('hospital.export')
+    ->middleware(['auth', 'role:hospital_admin,super_admin']);
+Route::get('/hospital/report', [HospitalDashboardController::class, 'exportReport'])
+    ->name('hospital.report')
+    ->middleware(['auth', 'role:hospital_admin,super_admin']);
+Route::get('/hospital/patient/{patient}', [HospitalDashboardController::class, 'patientHistory'])
+    ->name('hospital.patient')
     ->middleware(['auth', 'role:hospital_admin,super_admin']);

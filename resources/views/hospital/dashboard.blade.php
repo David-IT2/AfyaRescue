@@ -8,6 +8,7 @@
             @if(!empty($isSuperAdmin) && $hospitals && $hospitals->isNotEmpty())
                 <form method="get" class="flex items-center gap-2" id="filter-form">
                     <input type="hidden" name="patient" value="{{ request('patient') }}" />
+                    <input type="hidden" name="patient_id" value="{{ request('patient_id') }}" />
                     <input type="hidden" name="status" value="{{ request('status') }}" />
                     <input type="hidden" name="from" value="{{ request('from') }}" />
                     <input type="hidden" name="to" value="{{ request('to') }}" />
@@ -21,6 +22,7 @@
                 </form>
             @endif
             <a href="{{ route('hospital.export') }}?{{ request()->getQueryString() }}" class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">Export CSV</a>
+            <a href="{{ route('hospital.report') }}?{{ request()->getQueryString() }}" class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50" target="_blank">Report (Print/PDF)</a>
             <span class="text-xs text-slate-500">Reload for latest</span>
         </div>
     </div>
@@ -28,6 +30,7 @@
     {{-- Filters: patient search, status --}}
     <form method="get" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <input type="hidden" name="hospital_id" value="{{ request('hospital_id') }}" />
+        <input type="hidden" name="patient_id" value="{{ request('patient_id') }}" />
         <div class="flex flex-wrap items-end gap-4">
             <div class="min-w-[140px]">
                 <label for="patient" class="mb-1 block text-sm font-medium text-slate-700">Patient</label>
@@ -127,9 +130,13 @@
                         ">{{ $cat ?? '—' }}</span>
                     </td>
                     <td class="px-4 py-3 text-sm text-slate-700">
-                        {{ $e->patient->name ?? 'N/A' }}
-                        @if($e->patient && $e->patient->phone)
-                            <br><span class="text-slate-500">{{ $e->patient->phone }}</span>
+                        @if($e->patient)
+                            <a href="{{ route('hospital.patient', $e->patient) }}" class="font-medium text-red-600 hover:underline">{{ $e->patient->name }}</a>
+                            @if($e->patient->phone)
+                                <br><span class="text-slate-500">{{ $e->patient->phone }}</span>
+                            @endif
+                        @else
+                            N/A
                         @endif
                     </td>
                     <td class="max-w-[160px] truncate px-4 py-3 text-sm text-slate-600" title="{{ $e->address_text }}">{{ $e->address_text ?: $e->latitude . ', ' . $e->longitude }}</td>

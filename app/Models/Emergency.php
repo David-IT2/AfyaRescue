@@ -44,6 +44,9 @@ class Emergency extends Model
         'arrived_at',
         'closed_at',
         'notes',
+        'doctor_notes',
+        'admission_info',
+        'discharge_summary',
     ];
 
     protected function casts(): array

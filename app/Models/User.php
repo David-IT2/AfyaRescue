@@ -32,6 +32,7 @@ class User extends Authenticatable
         'role',
         'phone',
         'hospital_id',
+        'driver_skill',
     ];
 
     /**

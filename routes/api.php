@@ -28,11 +28,15 @@ Route::prefix('v1')->group(function () {
             ->middleware('role:driver');
         Route::patch('/driver/emergencies/{emergency}/status', [App\Http\Controllers\Api\DriverEmergencyController::class, 'updateStatus'])
             ->middleware('role:driver');
+        Route::put('/driver/location', [App\Http\Controllers\Api\DriverLocationController::class, 'update'])
+            ->middleware('role:driver');
 
         // Hospital admin: list emergencies for hospital
         Route::get('/hospital/emergencies', [App\Http\Controllers\Api\HospitalEmergencyController::class, 'index'])
             ->middleware('role:hospital_admin,super_admin');
         Route::get('/hospital/emergencies/{emergency}', [App\Http\Controllers\Api\HospitalEmergencyController::class, 'show'])
+            ->middleware('role:hospital_admin,super_admin');
+        Route::patch('/hospital/emergencies/{emergency}/notes', [App\Http\Controllers\Api\HospitalEmergencyController::class, 'updateNotes'])
             ->middleware('role:hospital_admin,super_admin');
     });
 });
