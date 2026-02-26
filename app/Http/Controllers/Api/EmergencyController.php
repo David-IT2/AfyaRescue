@@ -92,6 +92,8 @@ class EmergencyController extends Controller
             'address_text' => $e->address_text,
             'severity_score' => $e->severity_score,
             'severity_label' => $e->severity_label,
+            'severity_category' => $e->severity_category,
+            'eta_minutes' => $e->eta_minutes,
             'requested_at' => $e->requested_at?->toIso8601String(),
             'assigned_at' => $e->assigned_at?->toIso8601String(),
             'enroute_at' => $e->enroute_at?->toIso8601String(),

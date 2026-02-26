@@ -3,37 +3,80 @@
 namespace App\Http\Controllers;
 
 use App\Models\Emergency;
+use App\Models\Hospital;
+use App\Services\EmergencyAnalyticsService;
+use App\Services\EmergencyReportingService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class HospitalDashboardController extends Controller
 {
-    public function index(Request $request): View
+    public function __construct(
+        protected EmergencyReportingService $reporting,
+        protected EmergencyAnalyticsService $analytics
+    ) {}
+
+    public function index(Request $request): View|StreamedResponse
     {
-        $query = Emergency::with(['patient:id,name,phone', 'ambulance:id,plate_number,driver_id', 'ambulance.driver:id,name,phone', 'hospital:id,name,slug']);
-        if ($request->user()->role === 'hospital_admin' && $request->user()->hospital_id) {
-            $query->where('hospital_id', $request->user()->hospital_id);
+        $user = $request->user();
+        $hospitalIdScope = $user->role === 'hospital_admin' ? $user->hospital_id : null;
+
+        $filters = [
+            'patient' => $request->query('patient'),
+            'status' => $request->query('status'),
+            'hospital_id' => $user->role === 'super_admin' ? $request->integer('hospital_id') : null,
+            'from' => $request->query('from'),
+            'to' => $request->query('to'),
+        ];
+        if ($user->role === 'super_admin' && $request->integer('hospital_id') > 0) {
+            $hospitalIdScope = $request->integer('hospital_id');
         }
-        if ($request->user()->role === 'super_admin') {
-            $hospitalId = $request->integer('hospital_id');
-            if ($hospitalId > 0) {
-                $query->where('hospital_id', $hospitalId);
-            }
-        }
-        $emergencies = $query->orderByRaw("CASE status WHEN 'requested' THEN 1 WHEN 'assigned' THEN 2 WHEN 'enroute' THEN 3 WHEN 'arrived' THEN 4 WHEN 'closed' THEN 5 ELSE 6 END")
+
+        $query = $this->reporting->filteredQuery($filters, $hospitalIdScope)
+            ->with(['patient:id,name,phone', 'ambulance:id,plate_number,driver_id', 'ambulance.driver:id,name,phone', 'hospital:id,name,slug']);
+        $emergencies = $query
             ->orderByDesc('severity_score')
+            ->orderByRaw("CASE status WHEN 'requested' THEN 1 WHEN 'assigned' THEN 2 WHEN 'enroute' THEN 3 WHEN 'arrived' THEN 4 WHEN 'closed' THEN 5 ELSE 6 END")
             ->orderByDesc('created_at')
             ->limit(100)
             ->get();
-        $hospitals = $request->user()->role === 'super_admin'
-            ? \App\Models\Hospital::where('is_active', true)->orderBy('name')->get(['id', 'name'])
+
+        $hospitals = $user->role === 'super_admin'
+            ? Hospital::where('is_active', true)->orderBy('name')->get(['id', 'name'])
             : null;
+
+        $stats = [
+            'avg_assignment_min' => $this->analytics->averageAssignmentTimeMinutes($hospitalIdScope),
+            'avg_enroute_min' => $this->analytics->averageEnrouteTimeMinutes($hospitalIdScope),
+            'by_severity' => $this->analytics->countBySeverityCategory($hospitalIdScope),
+            'utilization' => $this->analytics->ambulanceUtilization($hospitalIdScope),
+        ];
 
         return view('hospital.dashboard', [
             'emergencies' => $emergencies,
-            'hospitalId' => $request->user()->hospital_id,
+            'hospitalId' => $user->hospital_id,
             'hospitals' => $hospitals,
-            'isSuperAdmin' => $request->user()->role === 'super_admin',
+            'isSuperAdmin' => $user->role === 'super_admin',
+            'filters' => $filters,
+            'stats' => $stats,
         ]);
+    }
+
+    public function exportCsv(Request $request): StreamedResponse
+    {
+        $user = $request->user();
+        $hospitalIdScope = $user->role === 'hospital_admin' ? $user->hospital_id : null;
+        if ($user->role === 'super_admin' && $request->integer('hospital_id') > 0) {
+            $hospitalIdScope = $request->integer('hospital_id');
+        }
+        $filters = [
+            'patient' => $request->query('patient'),
+            'status' => $request->query('status'),
+            'hospital_id' => $user->role === 'super_admin' ? $request->query('hospital_id') : null,
+            'from' => $request->query('from'),
+            'to' => $request->query('to'),
+        ];
+        return $this->reporting->exportCsv($filters, $hospitalIdScope);
     }
 }

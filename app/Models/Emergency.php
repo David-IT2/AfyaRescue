@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Emergency extends Model
@@ -35,6 +36,8 @@ class Emergency extends Model
         'address_text',
         'severity_score',
         'severity_label',
+        'severity_category',
+        'eta_minutes',
         'requested_at',
         'assigned_at',
         'enroute_at',
@@ -75,5 +78,10 @@ class Emergency extends Model
     public function triageResponse(): HasOne
     {
         return $this->hasOne(TriageResponse::class);
+    }
+
+    public function eventLogs(): HasMany
+    {
+        return $this->hasMany(EmergencyEventLog::class);
     }
 }

@@ -18,6 +18,7 @@ class Hospital extends Model
         'longitude',
         'phone',
         'is_active',
+        'level',
     ];
 
     protected function casts(): array
@@ -26,6 +27,7 @@ class Hospital extends Model
             'latitude' => 'decimal:8',
             'longitude' => 'decimal:8',
             'is_active' => 'boolean',
+            'level' => 'integer',
         ];
     }
 

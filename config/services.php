@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'afyarescue' => [
+        'critical_alert_email' => env('AFYARESCUE_CRITICAL_ALERT_EMAIL'),
+    ],
+
 ];

@@ -4,9 +4,10 @@ namespace App\Services;
 
 use App\Models\Emergency;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
- * Sends notifications to driver and hospital (log for MVP; can add Pusher/mail/SMS).
+ * Sends notifications to driver and hospital (log, broadcast, optional email for critical).
  */
 class NotificationService
 {
@@ -16,7 +17,7 @@ class NotificationService
         Log::channel('stack')->info('AfyaRescue: New emergency', [
             'emergency_id' => $emergency->id,
             'hospital_id' => $emergency->hospital_id,
-            'severity' => $emergency->severity_label,
+            'severity' => $emergency->severity_category ?? $emergency->severity_label,
             'ambulance_id' => $emergency->ambulance_id,
             'driver_id' => $emergency->ambulance?->driver_id,
         ]);
@@ -26,8 +27,37 @@ class NotificationService
             'hospital_id' => $emergency->hospital_id,
             'severity_score' => $emergency->severity_score,
             'severity_label' => $emergency->severity_label,
+            'severity_category' => $emergency->severity_category,
             'status' => $emergency->status,
         ]);
+
+        if (($emergency->severity_category ?? '') === \App\Services\TriageService::CATEGORY_CRITICAL) {
+            $this->notifyCriticalEmergency($emergency);
+        }
+    }
+
+    /** Optional: email critical alert when MAIL_* is configured. */
+    protected function notifyCriticalEmergency(Emergency $emergency): void
+    {
+        if (config('mail.default') === 'log') {
+            Log::channel('stack')->warning('AfyaRescue: CRITICAL emergency', [
+                'emergency_id' => $emergency->id,
+                'hospital_id' => $emergency->hospital_id,
+            ]);
+            return;
+        }
+        $to = config('services.afyarescue.critical_alert_email');
+        if (! $to) {
+            return;
+        }
+        try {
+            Mail::raw(
+                "Critical emergency #{$emergency->id} at hospital {$emergency->hospital->name}. Severity: " . ($emergency->severity_category ?? $emergency->severity_label) . ". Check dashboard.",
+                fn ($m) => $m->to($to)->subject('AfyaRescue: Critical Emergency #' . $emergency->id)
+            );
+        } catch (\Throwable $e) {
+            Log::debug('Critical email skipped: ' . $e->getMessage());
+        }
     }
 
     public function notifyEmergencyStatusUpdate(Emergency $emergency): void

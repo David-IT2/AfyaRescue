@@ -7,24 +7,23 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Handles emergency creation, assignment, and status transitions.
+ * Uses TriageService for severity; logs all events via EmergencyLogService.
  */
 class EmergencyFlowService
 {
     public function __construct(
-        protected TriageScoringService $triageScoring,
+        protected TriageService $triageService,
         protected AmbulanceAssignmentService $ambulanceAssignment,
-        protected NotificationService $notification
+        protected NotificationService $notification,
+        protected EmergencyLogService $emergencyLog
     ) {}
 
-    /**
-     * Create emergency with triage, compute severity, assign nearest ambulance, notify.
-     */
     public function createEmergency(int $patientId, int $hospitalId, float $latitude, float $longitude, ?string $addressText, array $triageResponses): Emergency
     {
-        $score = $this->triageScoring->calculateScore($triageResponses);
-        $label = $this->triageScoring->scoreToLabel($score);
+        $normalized = $this->normalizeTriageResponses($triageResponses);
+        $result = $this->triageService->evaluate($normalized);
 
-        $emergency = DB::transaction(function () use ($patientId, $hospitalId, $latitude, $longitude, $addressText, $triageResponses, $score, $label) {
+        $emergency = DB::transaction(function () use ($patientId, $hospitalId, $latitude, $longitude, $addressText, $normalized, $result) {
             $emergency = Emergency::create([
                 'patient_id' => $patientId,
                 'hospital_id' => $hospitalId,
@@ -32,20 +31,30 @@ class EmergencyFlowService
                 'latitude' => $latitude,
                 'longitude' => $longitude,
                 'address_text' => $addressText,
-                'severity_score' => $score,
-                'severity_label' => $label,
+                'severity_score' => $result['legacy_score'],
+                'severity_label' => $result['legacy_label'],
+                'severity_category' => $result['category'],
                 'requested_at' => now(),
             ]);
 
             $emergency->triageResponse()->create([
-                'responses' => $triageResponses,
-                'calculated_score' => $score,
+                'responses' => $normalized,
+                'calculated_score' => $result['weighted_score'],
+            ]);
+
+            $this->emergencyLog->log($emergency, EmergencyLogService::EVENT_CREATED, [
+                'severity_category' => $result['category'],
+                'weighted_score' => $result['weighted_score'],
             ]);
 
             $ambulance = $this->ambulanceAssignment->findNearestAvailableAmbulance($emergency);
             if ($ambulance) {
                 $this->ambulanceAssignment->assignAmbulanceToEmergency($emergency, $ambulance);
                 $emergency->refresh();
+                $this->emergencyLog->log($emergency, EmergencyLogService::EVENT_ASSIGNED, [
+                    'ambulance_id' => $ambulance->id,
+                    'eta_minutes' => $emergency->eta_minutes,
+                ]);
             }
 
             return $emergency;
@@ -55,9 +64,6 @@ class EmergencyFlowService
         return $emergency;
     }
 
-    /**
-     * Transition status (driver/hospital): assigned -> enroute -> arrived -> closed.
-     */
     public function updateStatus(Emergency $emergency, string $newStatus): Emergency
     {
         $allowed = [
@@ -88,7 +94,33 @@ class EmergencyFlowService
         }
 
         $emergency->update($payload);
+        $eventType = match ($newStatus) {
+            Emergency::STATUS_ENROUTE => EmergencyLogService::EVENT_ENROUTE,
+            Emergency::STATUS_ARRIVED => EmergencyLogService::EVENT_ARRIVED,
+            Emergency::STATUS_CLOSED => EmergencyLogService::EVENT_CLOSED,
+            default => null,
+        };
+        if ($eventType) {
+            $this->emergencyLog->log($emergency, $eventType);
+        }
         $this->notification->notifyEmergencyStatusUpdate($emergency);
         return $emergency->fresh();
+    }
+
+    private function normalizeTriageResponses(array $raw): array
+    {
+        $out = [];
+        foreach ($raw as $k => $v) {
+            if ($k === 'conscious') {
+                $out[$k] = filter_var($v, FILTER_VALIDATE_BOOLEAN);
+            } elseif (in_array($k, ['chest_pain', 'stroke_symptoms', 'pregnancy_emergency', 'allergic_reaction'], true)) {
+                $out[$k] = filter_var($v, FILTER_VALIDATE_BOOLEAN);
+            } elseif ($k === 'number_of_casualties') {
+                $out[$k] = (int) $v;
+            } else {
+                $out[$k] = $v;
+            }
+        }
+        return $out;
     }
 }

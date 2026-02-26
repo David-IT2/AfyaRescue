@@ -85,6 +85,16 @@ API-first emergency response and triage platform built with **Laravel 11**, **My
 
 All authenticated routes use `Authorization: Bearer <token>`.
 
+## Phase 2 enhancements
+
+- **TriageService**: Weighted scoring (chest pain, bleeding, unconsciousness, stroke signs, breathing difficulty); categories **Critical**, **Moderate**, **Mild**; stored in TriageResponses and Emergencies.
+- **Ambulance assignment**: Haversine distance, hospital level preference for critical cases, ETA (minutes) stored on emergency; ambulance status Available → Assigned (busy) → released when emergency closed.
+- **Hospital dashboard**: Severity color codes (red/amber/green), ETA column, filter by patient name/phone and status, date range; analytics (avg assignment time, avg en route time, by severity, ambulance utilization); **CSV export**.
+- **Emergency event log**: All status changes logged in `emergency_event_logs` for auditing.
+- **Super Admin**: Manage **Users**, **Hospitals** (with level 1–3), **Ambulances** at `/super-admin/users`, `/super-admin/hospitals`, `/super-admin/ambulances`. Hospital admins have view-only dashboard (ambulances are auto-assigned).
+- **Critical alerts**: Set `AFYARESCUE_CRITICAL_ALERT_EMAIL` in `.env` to receive email for Critical emergencies; Pusher still used for real-time when configured.
+- **API**: Responses include `severity_category`, `eta_minutes`; all inputs validated; use HTTPS in production.
+
 ## Optional: live updates (Pusher)
 
 1. Install Pusher PHP SDK: `composer require pusher/pusher-php-server`
@@ -96,6 +106,7 @@ All authenticated routes use `Authorization: Bearer <token>`.
 - Passwords hashed with bcrypt; sessions and cookies use Laravel encryption.
 - Sensitive config in `.env`; do not commit `.env`.
 - API protected by Sanctum tokens; web by session + role middleware.
+- Use HTTPS in production; consider encrypting sensitive patient data at rest if required.
 
 ## License
 
