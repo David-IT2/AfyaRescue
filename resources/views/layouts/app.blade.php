@@ -21,7 +21,7 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-14 justify-between">
                 <div class="flex items-center">
-                    <a href="{{ url('/') }}" class="text-xl font-bold text-red-600">AfyaRescue</a>
+                    <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight text-slate-900">Afya<span class="text-red-600">Rescue</span></a>
                     @auth
                         <span class="ml-4 text-sm text-slate-500">({{ ucfirst(str_replace('_', ' ', auth()->user()->role)) }})</span>
                     @endauth
