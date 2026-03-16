@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Register')
 @section('content')
-<div class="mx-auto max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+<div class="mx-auto w-full max-w-6xl rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
     <h1 class="mb-4 text-xl font-semibold">Register for AfyaRescue</h1>
     <form method="POST" action="{{ route('register') }}">
         @csrf

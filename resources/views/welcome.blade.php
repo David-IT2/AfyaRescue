@@ -126,20 +126,6 @@
             </div>
         </section>
 
-        {{-- CTA --}}
-        @guest
-        <section class="border-t border-slate-800/50 py-20 sm:py-24">
-            <div class="mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
-                <h2 class="text-2xl font-bold text-white sm:text-3xl">Ready to get started?</h2>
-                <p class="mx-auto mt-3 max-w-xl text-slate-400">Create an account to request emergency help or sign in if you’re a driver or hospital.</p>
-                <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-                    <a href="{{ route('register') }}" class="rounded-lg bg-red-600 px-6 py-3 font-semibold text-white transition hover:bg-red-500">Register</a>
-                    <a href="{{ route('login') }}" class="rounded-lg border border-slate-600 px-6 py-3 font-semibold text-slate-200 transition hover:bg-slate-800">Log in</a>
-                </div>
-            </div>
-        </section>
-        @endguest
-
         <footer class="border-t border-slate-800/50 py-8">
             <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                 <p class="text-center text-sm text-slate-500">Afya Rescue – Emergency Response & Ambulance Coordination</p>
