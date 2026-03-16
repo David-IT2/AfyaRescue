@@ -8,13 +8,19 @@
         <div class="mb-4">
             <label for="email" class="mb-1 block text-sm font-medium text-slate-700">Email</label>
             <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                class="w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                class="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-red-500 focus:ring-red-500" />
             @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
         <div class="mb-4">
             <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Password</label>
-            <input id="password" type="password" name="password" required
-                class="w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-red-500 focus:ring-red-500" />
+            <div class="relative">
+                <input id="password" type="password" name="password" required
+                    class="w-full rounded-md border border-slate-300 px-3 py-2 pr-10 text-slate-900 shadow-sm focus:border-red-500 focus:ring-red-500" />
+                <button type="button" id="toggle-password"
+                    class="absolute inset-y-0 right-2 flex items-center text-xs text-slate-500 hover:text-slate-700">
+                    Show
+                </button>
+            </div>
             @error('password') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
         <div class="mb-4 flex items-center">
@@ -27,4 +33,17 @@
         Don't have an account? <a href="{{ route('register') }}" class="font-medium text-red-600 hover:underline">Register</a>
     </p>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('password');
+    const toggle = document.getElementById('toggle-password');
+    if (input && toggle) {
+        toggle.addEventListener('click', function () {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            toggle.textContent = isPassword ? 'Hide' : 'Show';
+        });
+    }
+});
+</script>
 @endsection
