@@ -16,38 +16,38 @@
         .badge-low { background: #16a34a; color: #fff; }
     </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
-    <nav class="border-b border-slate-200 bg-white shadow-sm">
+<body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
+    <nav class="border-b border-slate-800/50 bg-slate-950/80 shadow-sm backdrop-blur-sm">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-14 justify-between">
                 <div class="flex items-center">
-                    <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight text-slate-900">Afya<span class="text-red-600">Rescue</span></a>
+                    <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight text-white">Afya<span class="text-red-500">Rescue</span></a>
                     @auth
-                        <span class="ml-4 text-sm text-slate-500">({{ ucfirst(str_replace('_', ' ', auth()->user()->role)) }})</span>
+                        <span class="ml-4 text-sm text-slate-400">({{ ucfirst(str_replace('_', ' ', auth()->user()->role)) }})</span>
                     @endauth
                 </div>
                 <div class="flex items-center gap-4">
                     @auth
                         @if(auth()->user()->hasRole('patient'))
-                            <a href="{{ route('emergency.create') }}" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700">New Emergency</a>
+                            <a href="{{ route('emergency.create') }}" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-500">New Emergency</a>
                         @endif
                         @if(auth()->user()->hasRole('driver'))
-                            <a href="{{ route('driver.dashboard') }}" class="rounded-md bg-slate-700 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">My Assignments</a>
+                            <a href="{{ route('driver.dashboard') }}" class="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">My Assignments</a>
                         @endif
                         @if(auth()->user()->hasRole('hospital_admin', 'super_admin'))
-                            <a href="{{ route('hospital.dashboard') }}" class="rounded-md bg-slate-700 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">Hospital Dashboard</a>
+                            <a href="{{ route('hospital.dashboard') }}" class="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">Hospital Dashboard</a>
                         @endif
                         @if(auth()->user()->hasRole('super_admin'))
-                            <a href="{{ route('super-admin.health') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">System health</a>
-                            <a href="{{ route('super-admin.users.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Manage</a>
+                            <a href="{{ route('super-admin.health') }}" class="rounded-md border border-slate-600 bg-slate-800/40 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white">System health</a>
+                            <a href="{{ route('super-admin.users.index') }}" class="rounded-md border border-slate-600 bg-slate-800/40 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white">Manage</a>
                         @endif
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
-                            <button type="submit" class="text-sm text-slate-600 hover:text-slate-900">Logout</button>
+                            <button type="submit" class="text-sm text-slate-300 transition hover:text-white">Logout</button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">Login</a>
-                        <a href="{{ route('register') }}" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700">Register</a>
+                        <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300 transition hover:text-white">Login</a>
+                        <a href="{{ route('register') }}" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-500">Register</a>
                     @endauth
                 </div>
             </div>
