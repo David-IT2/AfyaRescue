@@ -4,12 +4,12 @@
 <div class="space-y-6">
 
     <div class="flex flex-wrap items-center justify-between gap-4">
-        <h1 class="text-2xl font-bold text-slate-800">System Health</h1>
+        <h1 class="text-2xl font-bold text-white">System Health</h1>
         <div class="flex gap-2">
-            <a href="{{ route('hospital.dashboard') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Hospital Dashboard</a>
-            <a href="{{ route('super-admin.users.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Manage Users</a>
-            <a href="{{ route('super-admin.hospitals.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Hospitals</a>
-            <a href="{{ route('super-admin.ambulances.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Ambulances</a>
+            <a href="{{ route('hospital.dashboard') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-white hover:bg-slate-50">Hospital Dashboard</a>
+            <a href="{{ route('super-admin.users.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-white hover:bg-slate-50">Manage Users</a>
+            <a href="{{ route('super-admin.hospitals.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-white hover:bg-slate-50">Hospitals</a>
+            <a href="{{ route('super-admin.ambulances.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-white hover:bg-slate-50">Ambulances</a>
         </div>
     </div>
 

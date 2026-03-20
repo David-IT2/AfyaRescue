@@ -3,7 +3,7 @@
 @section('content')
 <div class="space-y-6">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-bold text-slate-800">Incoming emergencies</h1>
+        <h1 class="text-2xl font-bold text-white">Incoming emergencies</h1>
         <div class="flex flex-wrap items-center gap-3">
             @if(!empty($isSuperAdmin) && $hospitals && $hospitals->isNotEmpty())
                 <form method="get" class="flex items-center gap-2" id="filter-form">
@@ -12,8 +12,8 @@
                     <input type="hidden" name="status" value="{{ request('status') }}" />
                     <input type="hidden" name="from" value="{{ request('from') }}" />
                     <input type="hidden" name="to" value="{{ request('to') }}" />
-                    <label for="hospital_id" class="text-sm text-slate-600">Hospital:</label>
-                    <select name="hospital_id" id="hospital_id" onchange="this.form.submit()" class="rounded-md border border-slate-300 px-2 py-1 text-sm">
+                    <label for="hospital_id" class="text-sm font-bold text-white">Hospital:</label>
+                    <select name="hospital_id" id="hospital_id" onchange="this.form.submit()" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900">
                         <option value="">All</option>
                         @foreach($hospitals as $h)
                             <option value="{{ $h->id }}" {{ request('hospital_id') == $h->id ? 'selected' : '' }}>{{ $h->name }}</option>
@@ -23,7 +23,7 @@
             @endif
             <a href="{{ route('hospital.export') }}?{{ request()->getQueryString() }}" class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">Export CSV</a>
             <a href="{{ route('hospital.report') }}?{{ request()->getQueryString() }}" class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50" target="_blank">Report (Print/PDF)</a>
-            <span class="text-xs text-slate-500">Reload for latest</span>
+            <span class="text-xs font-bold text-white">Reload for latest</span>
         </div>
     </div>
 
@@ -34,11 +34,11 @@
         <div class="flex flex-wrap items-end gap-4">
             <div class="min-w-[140px]">
                 <label for="patient" class="mb-1 block text-sm font-medium text-slate-700">Patient</label>
-                <input type="text" name="patient" id="patient" value="{{ request('patient') }}" placeholder="Name or phone" class="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
+                <input type="text" name="patient" id="patient" value="{{ request('patient') }}" placeholder="Name or phone" class="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 placeholder:text-slate-400" />
             </div>
             <div>
                 <label for="status" class="mb-1 block text-sm font-medium text-slate-700">Status</label>
-                <select name="status" id="status" class="rounded-md border border-slate-300 px-2 py-1.5 text-sm">
+                <select name="status" id="status" class="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900">
                     <option value="">All</option>
                     @foreach(['requested','assigned','enroute','arrived','closed'] as $s)
                         <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
@@ -47,11 +47,11 @@
             </div>
             <div>
                 <label for="from" class="mb-1 block text-sm font-medium text-slate-700">From</label>
-                <input type="date" name="from" id="from" value="{{ request('from') }}" class="rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
+                <input type="date" name="from" id="from" value="{{ request('from') }}" class="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900" />
             </div>
             <div>
                 <label for="to" class="mb-1 block text-sm font-medium text-slate-700">To</label>
-                <input type="date" name="to" id="to" value="{{ request('to') }}" class="rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
+                <input type="date" name="to" id="to" value="{{ request('to') }}" class="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900" />
             </div>
             <button type="submit" class="rounded-md bg-slate-700 px-4 py-1.5 text-sm font-medium text-white hover:bg-slate-800">Filter</button>
         </div>
