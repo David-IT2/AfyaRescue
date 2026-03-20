@@ -86,4 +86,10 @@ class UserManagementController extends Controller
         $user->save();
         return redirect()->route('super-admin.users.index')->with('success', 'User updated.');
     }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect()->route('super-admin.users.index')->with('success', 'User deleted.');
+    }
 }

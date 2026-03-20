@@ -42,9 +42,9 @@ Route::middleware(['auth', 'role:driver'])->group(function () {
 Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\SuperAdmin\SystemHealthController::class, 'index'])->name('health');
     Route::get('/health', [\App\Http\Controllers\SuperAdmin\SystemHealthController::class, 'index'])->name('health.index');
-    Route::resource('users', \App\Http\Controllers\SuperAdmin\UserManagementController::class)->except(['show', 'destroy']);
-    Route::resource('hospitals', \App\Http\Controllers\SuperAdmin\HospitalManagementController::class)->except(['show', 'destroy']);
-    Route::resource('ambulances', \App\Http\Controllers\SuperAdmin\AmbulanceManagementController::class)->except(['show', 'destroy']);
+    Route::resource('users', \App\Http\Controllers\SuperAdmin\UserManagementController::class)->except(['show']);
+    Route::resource('hospitals', \App\Http\Controllers\SuperAdmin\HospitalManagementController::class)->except(['show']);
+    Route::resource('ambulances', \App\Http\Controllers\SuperAdmin\AmbulanceManagementController::class)->except(['show']);
 });
 
 // Hospital dashboard
