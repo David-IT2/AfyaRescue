@@ -10,6 +10,7 @@
             <a href="{{ route('super-admin.users.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-white hover:bg-slate-50">Manage Users</a>
             <a href="{{ route('super-admin.hospitals.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-white hover:bg-slate-50">Hospitals</a>
             <a href="{{ route('super-admin.ambulances.index') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-white hover:bg-slate-50">Ambulances</a>
+            <a href="{{ route('super-admin.metrics') }}" class="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-white hover:bg-slate-50">Metrics</a>
         </div>
     </div>
 
