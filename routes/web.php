@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EmergencyRequestController;
+use App\Http\Controllers\AmbulanceAssignmentController;
+use App\Http\Controllers\DriverLocationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DriverDashboardController;
 use App\Http\Controllers\HospitalDashboardController;
@@ -25,20 +27,32 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 
 Route::get('/dashboard', HomeController::class)->name('dashboard.or.home')->middleware('auth');
 
-// Patient: emergency request form
+// Patient: emergency request form + tracking
 Route::middleware(['auth', 'role:patient'])->group(function () {
     Route::get('/emergency', [EmergencyRequestController::class, 'create'])->name('emergency.create');
     Route::post('/emergency', [EmergencyRequestController::class, 'store'])->name('emergency.store');
     Route::get('/emergency/{emergency}', [EmergencyRequestController::class, 'show'])->name('emergency.show');
 });
 
-// Driver dashboard
+// Driver dashboard + location sharing
 Route::middleware(['auth', 'role:driver'])->group(function () {
     Route::get('/driver', [DriverDashboardController::class, 'index'])->name('driver.dashboard');
     Route::post('/driver/emergency/{emergency}/status', [DriverDashboardController::class, 'updateStatus'])->name('driver.status');
 });
 
-// Super Admin: system health, manage users, hospitals, ambulances
+// Ambulance assignment (hospital_admin + super_admin)
+Route::middleware(['auth', 'role:hospital_admin,super_admin'])->group(function () {
+    Route::get('/emergency/{emergency}/assign', [AmbulanceAssignmentController::class, 'create'])->name('emergency.assign');
+    Route::post('/emergency/{emergency}/assign', [AmbulanceAssignmentController::class, 'store'])->name('emergency.assign.store');
+});
+
+// Ambulance location — driver posts, patient polls (both authenticated)
+Route::middleware('auth')->group(function () {
+    Route::post('/ambulance/{ambulance}/location', [DriverLocationController::class, 'update'])->name('ambulance.location.update');
+    Route::get('/ambulance/{ambulance}/location', [DriverLocationController::class, 'show'])->name('ambulance.location.show');
+});
+
+// Super Admin: system health, manage users, hospitals, ambulances, metrics
 Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\SuperAdmin\SystemHealthController::class, 'index'])->name('health');
     Route::get('/health', [\App\Http\Controllers\SuperAdmin\SystemHealthController::class, 'index'])->name('health.index');
