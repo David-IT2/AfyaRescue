@@ -40,7 +40,6 @@
         {{-- Hero --}}
         <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-36">
             <div class="mx-auto max-w-3xl text-center">
-                <p class="mb-4 text-sm font-medium uppercase tracking-widest text-red-400">Emergency response, coordinated</p>
                 <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
                     Get help when it
                     <span class="text-red-500">matters most</span>
