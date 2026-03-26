@@ -21,7 +21,7 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-14 justify-between">
                 <div class="flex items-center">
-                    <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight text-white">Afya<span class="text-red-500">Rescue</span></a>
+                    <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight text-white">Afya<span style="color:#ff0013">Rescue</span></a>
                     @auth
                         <span class="ml-4 text-sm text-slate-400">({{ ucfirst(str_replace('_', ' ', auth()->user()->role)) }})</span>
                     @endauth
@@ -29,7 +29,7 @@
                 <div class="flex items-center gap-4">
                     @auth
                         @if(auth()->user()->hasRole('patient'))
-                            <a href="{{ route('emergency.create') }}" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-500">New Emergency</a>
+                            <a href="{{ route('emergency.create') }}" class="rounded-md px-3 py-2 text-sm font-medium text-white transition" style="background-color:#ff0013" onmouseover="this.style.backgroundColor='#cc0010'" onmouseout="this.style.backgroundColor='#ff0013'">New Emergency</a>
                         @endif
                         @if(auth()->user()->hasRole('driver'))
                             <a href="{{ route('driver.dashboard') }}" class="rounded-md bg-slate-700 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-slate-600 hover:text-white">My Assignments</a>
@@ -47,7 +47,7 @@
                         </form>
                     @else
                         <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300 transition hover:text-white">Login</a>
-                        <a href="{{ route('register') }}" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-500">Register</a>
+                        <a href="{{ route('register') }}" class="rounded-md px-3 py-2 text-sm font-medium text-white transition" style="background-color:#ff0013" onmouseover="this.style.backgroundColor='#cc0010'" onmouseout="this.style.backgroundColor='#ff0013'">Register</a>
                     @endauth
                 </div>
             </div>
