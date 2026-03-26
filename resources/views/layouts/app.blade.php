@@ -32,14 +32,14 @@
                             <a href="{{ route('emergency.create') }}" class="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-500">New Emergency</a>
                         @endif
                         @if(auth()->user()->hasRole('driver'))
-                            <a href="{{ route('driver.dashboard') }}" class="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">My Assignments</a>
+                            <a href="{{ route('driver.dashboard') }}" class="rounded-md bg-slate-700 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-slate-600 hover:text-white">My Assignments</a>
                         @endif
                         @if(auth()->user()->hasRole('hospital_admin', 'super_admin'))
-                            <a href="{{ route('hospital.dashboard') }}" class="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700 hover:text-white">Hospital Dashboard</a>
+                            <a href="{{ route('hospital.dashboard') }}" class="rounded-md bg-slate-700 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-slate-600 hover:text-white">Hospital Dashboard</a>
                         @endif
                         @if(auth()->user()->hasRole('super_admin'))
-                            <a href="{{ route('super-admin.health') }}" class="rounded-md border border-slate-600 bg-slate-800/40 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white">System health</a>
-                            <a href="{{ route('super-admin.users.index') }}" class="rounded-md border border-slate-600 bg-slate-800/40 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white">Manage</a>
+                            <a href="{{ route('super-admin.health') }}" class="rounded-md border border-slate-500 bg-slate-700 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-slate-600 hover:text-white">System health</a>
+                            <a href="{{ route('super-admin.users.index') }}" class="rounded-md border border-slate-500 bg-slate-700 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-slate-600 hover:text-white">Manage</a>
                         @endif
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
