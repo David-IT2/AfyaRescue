@@ -17,7 +17,7 @@
     </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
-    <nav class="border-b border-slate-800/50 bg-slate-950/80 shadow-sm backdrop-blur-sm">
+    <nav class="border-b border-slate-800 bg-slate-950 shadow-sm">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-14 justify-between">
                 <div class="flex items-center">
