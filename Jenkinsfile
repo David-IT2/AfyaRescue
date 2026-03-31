@@ -14,7 +14,7 @@ pipeline {
 
         stage('Install PHP Dependencies') {
             steps {
-                // Use Composer cache to speed up install
+                // Composer install with cache
                 sh '''
                 composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts --no-progress
                 '''
@@ -23,13 +23,14 @@ pipeline {
 
         stage('Prepare Environment') {
             steps {
-                // Copy .env.example if .env doesn't exist
+                // Ensure .env exists
                 sh 'cp .env.example .env || echo ".env exists"'
 
-                // Generate APP_KEY if missing
+                // Generate APP_KEY if missing and inject into .env
                 sh '''
                 if ! grep -q APP_KEY=. .env; then
-                    php artisan key:generate --ansi
+                    key=$(php artisan key:generate --show)
+                    echo "APP_KEY=$key" >> .env
                 fi
                 '''
 
@@ -40,10 +41,8 @@ pipeline {
 
         stage('Install Node Dependencies') {
             steps {
-                // Use npm cache to speed up builds
-                sh '''
-                npm ci --cache $NPM_CACHE --prefer-offline
-                '''
+                // npm install with cache
+                sh 'npm ci --cache $NPM_CACHE --prefer-offline'
             }
         }
 
