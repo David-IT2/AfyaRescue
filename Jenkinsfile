@@ -2,6 +2,8 @@ pipeline {
     agent any
     environment {
         COMPOSER_HOME = "$HOME/.composer"
+        COMPOSER_CACHE = "$HOME/.composer/cache"
+        NPM_CACHE = "$HOME/.npm"
     }
     stages {
         stage('Checkout') {
@@ -12,22 +14,36 @@ pipeline {
 
         stage('Install PHP Dependencies') {
             steps {
-                sh 'composer install --no-interaction --prefer-dist'
+                // Use Composer cache to speed up install
+                sh '''
+                composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts --no-progress
+                '''
             }
         }
 
         stage('Prepare Environment') {
             steps {
-                // Copy example env file if .env doesn't exist
+                // Copy .env.example if .env doesn't exist
                 sh 'cp .env.example .env || echo ".env exists"'
-                // Generate application key
-                sh 'php artisan key:generate --ansi'
+
+                // Generate APP_KEY if missing
+                sh '''
+                if ! grep -q APP_KEY=. .env; then
+                    php artisan key:generate --ansi
+                fi
+                '''
+
+                // Copy to .env.testing for Feature tests
+                sh 'cp .env .env.testing'
             }
         }
 
         stage('Install Node Dependencies') {
             steps {
-                sh 'npm install'
+                // Use npm cache to speed up builds
+                sh '''
+                npm ci --cache $NPM_CACHE --prefer-offline
+                '''
             }
         }
 
