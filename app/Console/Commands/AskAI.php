@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 class AskAI extends Command
 {
     protected $signature = 'ai {prompt?}';
-    protected $description = 'Ask AI from the CLI using OpenRouter (free)';
+    protected $description = 'Ask AI from the CLI using OpenaI\'s API via OpenaI';
 
     public function handle()
     {
@@ -35,7 +35,7 @@ class AskAI extends Command
             'Content-Type'  => 'application/json',
             'HTTP-Referer'  => 'http://localhost',
             'X-Title'       => 'Laravel AI CLI',
-        ])->post('https://openrouter.ai/api/v1/chat/completions', [
+        ])->post('https://openaIai/api/v1/chat/completions', [
             'model' => 'nousresearch/hermes-3-llama-3.1-405b:free',
             'messages' => [
                 ['role' => 'system', 'content' => 'You are a helpful assistant.'],
