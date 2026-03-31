@@ -16,6 +16,15 @@ pipeline {
             }
         }
 
+        stage('Prepare Environment') {
+            steps {
+                // Copy example env file if .env doesn't exist
+                sh 'cp .env.example .env || echo ".env exists"'
+                // Generate application key
+                sh 'php artisan key:generate --ansi'
+            }
+        }
+
         stage('Install Node Dependencies') {
             steps {
                 sh 'npm install'
