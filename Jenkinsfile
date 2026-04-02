@@ -32,15 +32,15 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                sh 'php artisan test'
-            }
-        }
-
         stage('Build Assets') {
             steps {
                 sh 'npm run build'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'php artisan test'
             }
         }
 
