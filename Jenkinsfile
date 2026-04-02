@@ -14,34 +14,20 @@ pipeline {
 
         stage('Install PHP Dependencies') {
             steps {
-                // Composer install with cache
-                sh '''
-                composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts --no-progress
-                '''
+                sh 'composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts --no-progress'
             }
         }
 
         stage('Prepare Environment') {
             steps {
-                // Ensure .env exists
-                sh 'cp .env.example .env || echo ".env exists"'
-
-                // Generate APP_KEY if missing and inject into .env
-                sh '''
-                if ! grep -q APP_KEY=. .env; then
-                    key=$(php artisan key:generate --show)
-                    echo "APP_KEY=$key" >> .env
-                fi
-                '''
-
-                // Copy to .env.testing for Feature tests
+                sh 'cp .env.example .env'
+                sh 'php artisan key:generate --force'
                 sh 'cp .env .env.testing'
             }
         }
 
         stage('Install Node Dependencies') {
             steps {
-                // npm install with cache
                 sh 'npm ci --cache $NPM_CACHE --prefer-offline'
             }
         }
