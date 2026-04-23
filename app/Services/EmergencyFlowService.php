@@ -21,7 +21,7 @@ class EmergencyFlowService
         protected EmergencyLogService $emergencyLog
     ) {}
 
-    public function createEmergency(int $patientId, int $hospitalId, float $latitude, float $longitude, ?string $addressText, array $triageResponses): Emergency
+    public function createEmergency(?int $patientId, int $hospitalId, float $latitude, float $longitude, ?string $addressText, array $triageResponses): Emergency
     {
         $normalized = $this->normalizeTriageResponses($triageResponses);
         $result = $this->triageService->evaluate($normalized);

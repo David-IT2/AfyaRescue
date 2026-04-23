@@ -20,50 +20,43 @@ class EmergencyRequestController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'hospital_id'                        => ['required', 'integer', 'exists:hospitals,id'],
-            'latitude'                           => ['required', 'numeric', 'between:-90,90'],
-            'longitude'                          => ['required', 'numeric', 'between:-180,180'],
-            'address_text'                       => ['nullable', 'string', 'max:500'],
-            'triage'                             => ['required', 'array'],
-            'triage.conscious'                   => ['nullable', 'boolean'],
-            'triage.breathing'                   => ['nullable', 'string', 'in:normal,difficult,absent'],
-            'triage.bleeding'                    => ['nullable', 'string', 'in:none,minor,severe'],
-            'triage.chest_pain'                  => ['nullable', 'boolean'],
-            'triage.stroke_symptoms'             => ['nullable', 'boolean'],
-            'triage.pregnancy_emergency'         => ['nullable', 'boolean'],
-            'triage.allergic_reaction'           => ['nullable', 'boolean'],
-            'triage.number_of_casualties'        => ['nullable', 'integer', 'min:0', 'max:20'],
-            // Guest fields — required only when not logged in
-            'caller_name'                        => ['required_without:_user', 'nullable', 'string', 'max:100'],
-            'caller_phone'                       => ['required_without:_user', 'nullable', 'string', 'max:20'],
+        $request->validate([
+            'hospital_id'                  => ['required', 'integer', 'exists:hospitals,id'],
+            'latitude'                     => ['required', 'numeric', 'between:-90,90'],
+            'longitude'                    => ['required', 'numeric', 'between:-180,180'],
+            'address_text'                 => ['nullable', 'string', 'max:500'],
+            'triage'                       => ['required', 'array'],
+            'triage.conscious'             => ['nullable', 'boolean'],
+            'triage.breathing'             => ['nullable', 'string', 'in:normal,difficult,absent'],
+            'triage.bleeding'              => ['nullable', 'string', 'in:none,minor,severe'],
+            'triage.chest_pain'            => ['nullable', 'boolean'],
+            'triage.stroke_symptoms'       => ['nullable', 'boolean'],
+            'triage.pregnancy_emergency'   => ['nullable', 'boolean'],
+            'triage.allergic_reaction'     => ['nullable', 'boolean'],
+            'triage.number_of_casualties'  => ['nullable', 'integer', 'min:0', 'max:20'],
         ]);
 
         $conscious = $request->input('triage.conscious');
         $triage = [
-            'conscious'           => $conscious === '1' || $conscious === true,
-            'breathing'           => $request->input('triage.breathing', 'normal'),
-            'bleeding'            => $request->input('triage.bleeding', 'none'),
-            'chest_pain'          => filter_var($request->input('triage.chest_pain'), FILTER_VALIDATE_BOOLEAN),
-            'stroke_symptoms'     => filter_var($request->input('triage.stroke_symptoms'), FILTER_VALIDATE_BOOLEAN),
-            'pregnancy_emergency' => filter_var($request->input('triage.pregnancy_emergency'), FILTER_VALIDATE_BOOLEAN),
-            'allergic_reaction'   => filter_var($request->input('triage.allergic_reaction'), FILTER_VALIDATE_BOOLEAN),
-            'number_of_casualties'=> (int) $request->input('triage.number_of_casualties', 0),
+            'conscious'            => $conscious === '1' || $conscious === true,
+            'breathing'            => $request->input('triage.breathing', 'normal'),
+            'bleeding'             => $request->input('triage.bleeding', 'none'),
+            'chest_pain'           => filter_var($request->input('triage.chest_pain'), FILTER_VALIDATE_BOOLEAN),
+            'stroke_symptoms'      => filter_var($request->input('triage.stroke_symptoms'), FILTER_VALIDATE_BOOLEAN),
+            'pregnancy_emergency'  => filter_var($request->input('triage.pregnancy_emergency'), FILTER_VALIDATE_BOOLEAN),
+            'allergic_reaction'    => filter_var($request->input('triage.allergic_reaction'), FILTER_VALIDATE_BOOLEAN),
+            'number_of_casualties' => (int) $request->input('triage.number_of_casualties', 0),
         ];
 
-        // Use logged-in patient ID, or null for guests
-        $patientId = $request->user()?->id;
-
         $emergency = $this->emergencyFlow->createEmergency(
-            $patientId,
-            $validated['hospital_id'],
-            (float) $validated['latitude'],
-            (float) $validated['longitude'],
-            $validated['address_text'] ?? null,
+            $request->user()?->id,
+            (int) $request->input('hospital_id'),
+            (float) $request->input('latitude'),
+            (float) $request->input('longitude'),
+            $request->input('address_text'),
             $triage
         );
 
-        // Guests see a confirmation page; patients go to tracking
         if (! $request->user()) {
             return view('emergency.guest-confirmation', ['emergency' => $emergency]);
         }

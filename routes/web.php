@@ -23,14 +23,17 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });
+
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::get('/dashboard', HomeController::class)->name('dashboard.or.home')->middleware('auth');
 
-// Patient: emergency request form + tracking
+// Public: anyone can request emergency help without logging in
+Route::get('/emergency', [EmergencyRequestController::class, 'create'])->name('emergency.create');
+Route::post('/emergency', [EmergencyRequestController::class, 'store'])->name('emergency.store');
+
+// Auth required: only the patient who made the request can track it
 Route::middleware(['auth', 'role:patient'])->group(function () {
-    Route::get('/emergency', [EmergencyRequestController::class, 'create'])->name('emergency.create');
-    Route::post('/emergency', [EmergencyRequestController::class, 'store'])->name('emergency.store');
     Route::get('/emergency/{emergency}', [EmergencyRequestController::class, 'show'])->name('emergency.show');
 });
 
