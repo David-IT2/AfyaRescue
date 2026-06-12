@@ -17,7 +17,7 @@
             </tr></thead>
             <tbody class="divide-y divide-slate-200">
                 @forelse($hospitals as $h)
-                <tr><td class="px-4 py-2 text-sm">{{ $h->name }}</td><td class="px-4 py-2 text-sm">{{ $h->level ?? 1 }}</td><td class="px-4 py-2 text-sm">{{ $h->ambulances_count }}</td><td class="px-4 py-2 text-sm">{{ $h->emergencies_count }}</td><td class="px-4 py-2"><a href="{{ route('super-admin.hospitals.edit', $h) }}" class="text-red-600 hover:underline">Edit</a></td></tr>
+                <tr><td class="px-4 py-2 text-sm text-slate-900">{{ $h->name }}</td><td class="px-4 py-2 text-sm text-slate-700">{{ $h->level ?? 1 }}</td><td class="px-4 py-2 text-sm text-slate-700">{{ $h->ambulances_count }}</td><td class="px-4 py-2 text-sm text-slate-700">{{ $h->emergencies_count }}</td><td class="px-4 py-2"><a href="{{ route('super-admin.hospitals.edit', $h) }}" class="text-red-600 hover:underline">Edit</a></td></tr>
                 @empty
                 <tr><td colspan="5" class="px-4 py-4 text-center text-slate-500">No hospitals.</td></tr>
                 @endforelse
