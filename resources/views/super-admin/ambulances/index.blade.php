@@ -3,23 +3,23 @@
 @section('content')
 <div class="space-y-4">
     <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-slate-800">Ambulances</h1>
+        <h1 class="text-2xl font-bold text-white text-slate-800">Ambulances</h1>
         <a href="{{ route('super-admin.ambulances.create') }}" class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">Add ambulance</a>
     </div>
     <form method="get" class="flex gap-2 flex-wrap">
-        <select name="hospital_id" class="rounded-md border border-slate-300 px-2 py-1 text-sm">
+        <select name="hospital_id" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900">
             <option value="">All hospitals</option>
             @foreach($hospitals as $h)
                 <option value="{{ $h->id }}" {{ request('hospital_id') == $h->id ? 'selected' : '' }}>{{ $h->name }}</option>
             @endforeach
         </select>
-        <select name="status" class="rounded-md border border-slate-300 px-2 py-1 text-sm">
+        <select name="status" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900">
             <option value="">All statuses</option>
             <option value="available" {{ request('status') === 'available' ? 'selected' : '' }}>Available</option>
             <option value="busy" {{ request('status') === 'busy' ? 'selected' : '' }}>Busy</option>
             <option value="maintenance" {{ request('status') === 'maintenance' ? 'selected' : '' }}>Maintenance</option>
         </select>
-        <button type="submit" class="rounded-md bg-slate-200 px-3 py-1 text-sm">Filter</button>
+        <button type="submit" class="rounded-md bg-slate-200 px-3 py-1 text-sm text-slate-900">Filter</button>
     </form>
     <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow">
         <table class="min-w-full divide-y divide-slate-200">
@@ -35,10 +35,10 @@
             <tbody class="divide-y divide-slate-200">
                 @forelse($ambulances as $a)
                 <tr>
-                    <td class="px-4 py-2 text-sm">{{ $a->plate_number ?? '—' }}</td>
-                    <td class="px-4 py-2 text-sm">{{ $a->hospital->name ?? '—' }}</td>
-                    <td class="px-4 py-2 text-sm">{{ $a->driver->name ?? '—' }}</td>
-                    <td class="px-4 py-2 text-sm">{{ $a->status }}</td>
+                    <td class="px-4 py-2 text-sm text-slate-900">{{ $a->plate_number ?? '—' }}</td>
+                    <td class="px-4 py-2 text-sm text-slate-700">{{ $a->hospital->name ?? '—' }}</td>
+                    <td class="px-4 py-2 text-sm text-slate-700">{{ $a->driver->name ?? '—' }}</td>
+                    <td class="px-4 py-2 text-sm text-slate-700">{{ $a->status }}</td>
                     <td class="px-4 py-2"><a href="{{ route('super-admin.ambulances.edit', $a) }}" class="text-red-600 hover:underline">Edit</a></td>
                 </tr>
                 @empty
