@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Afya Rescue – Emergency Response & Ambulance Coordination</title>
     <meta name="description" content="Connect emergencies with the right ambulance and hospital. Request help, coordinate drivers, and streamline hospital readiness.">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -47,12 +48,18 @@
                 <p class="mt-6 text-lg leading-relaxed text-slate-400 sm:text-xl">
                     Afya Rescue connects emergencies with the right ambulance and hospital. Request help in seconds, track status in real time, and keep everyone in sync—from patient to driver to hospital.
                 </p>
-                @guest
-                <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-                    <a href="{{ route('register') }}" class="inline-flex items-center rounded-lg bg-red-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-950">Get started</a>
-                    <a href="{{ route('login') }}" class="inline-flex items-center rounded-lg border border-slate-600 bg-slate-800/50 px-6 py-3 text-base font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800 hover:text-white">Log in</a>
+                <div class="mt-10 flex flex-col items-center">
+                    <a href="{{ route('emergency.create') }}"
+                       class="inline-flex items-center gap-2 rounded-xl px-10 py-4 text-lg font-bold text-white shadow-lg transition focus:outline-none focus:ring-2 focus:ring-[#ff0013] focus:ring-offset-2 focus:ring-offset-slate-950"
+                       style="background-color:#ff0013; box-shadow: 0 10px 15px -3px rgba(255, 0, 19, 0.25);"
+                       onmouseover="this.style.backgroundColor='#cc0010'"
+                       onmouseout="this.style.backgroundColor='#ff0013'">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        Request Emergency
+                    </a>
                 </div>
-                @endguest
             </div>
         </section>
 
