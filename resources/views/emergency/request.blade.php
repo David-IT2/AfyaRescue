@@ -120,7 +120,7 @@
         </div>
         <div class="flex gap-3">
             <button type="submit" class="rounded-md bg-red-600 px-6 py-2 font-medium text-white hover:bg-red-700">Submit Emergency Request</button>
-            <a href="{{ route('dashboard.or.home') }}" class="rounded-md border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50">Cancel</a>
+            <a href="{{ auth()->check() ? route('dashboard.or.home') : route('home') }}" class="rounded-md border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50">Cancel</a>
         </div>
     </form>
 </div>
