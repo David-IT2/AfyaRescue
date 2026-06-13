@@ -58,24 +58,24 @@ class MetricsController extends Controller
             ->pluck('total', 'severity_category')
             ->toArray();
 
-        // --- Avg response times ---
-        $avgAssignmentMin = (clone $emergencyQuery)
-            ->whereNotNull('assigned_at')
-            ->whereNotNull('requested_at')
-            ->select(DB::raw('AVG(TIMESTAMPDIFF(MINUTE, requested_at, assigned_at)) as avg_min'))
-            ->value('avg_min');
+        // --- Avg response times (PHP/Carbon — works on SQLite and MySQL) ---
+        $avgAssignmentMin = $this->averageMinutesBetween(
+            (clone $emergencyQuery)->whereNotNull('assigned_at')->whereNotNull('requested_at'),
+            'requested_at',
+            'assigned_at'
+        );
 
-        $avgEnrouteMin = (clone $emergencyQuery)
-            ->whereNotNull('enroute_at')
-            ->whereNotNull('assigned_at')
-            ->select(DB::raw('AVG(TIMESTAMPDIFF(MINUTE, assigned_at, enroute_at)) as avg_min'))
-            ->value('avg_min');
+        $avgEnrouteMin = $this->averageMinutesBetween(
+            (clone $emergencyQuery)->whereNotNull('enroute_at')->whereNotNull('assigned_at'),
+            'assigned_at',
+            'enroute_at'
+        );
 
-        $avgArrivalMin = (clone $emergencyQuery)
-            ->whereNotNull('arrived_at')
-            ->whereNotNull('enroute_at')
-            ->select(DB::raw('AVG(TIMESTAMPDIFF(MINUTE, enroute_at, arrived_at)) as avg_min'))
-            ->value('avg_min');
+        $avgArrivalMin = $this->averageMinutesBetween(
+            (clone $emergencyQuery)->whereNotNull('arrived_at')->whereNotNull('enroute_at'),
+            'enroute_at',
+            'arrived_at'
+        );
 
         // --- Hospitals & Ambulances ---
         $totalHospitals        = Hospital::count();
@@ -109,5 +109,19 @@ class MetricsController extends Controller
             'usersByRole',
             'mapEmergencies'
         ));
+    }
+
+    private function averageMinutesBetween($query, string $startColumn, string $endColumn): ?float
+    {
+        $emergencies = $query->get([$startColumn, $endColumn]);
+        if ($emergencies->isEmpty()) {
+            return null;
+        }
+
+        $total = $emergencies->sum(
+            fn (Emergency $emergency) => $emergency->{$startColumn}->diffInMinutes($emergency->{$endColumn})
+        );
+
+        return round($total / $emergencies->count(), 1);
     }
 }
