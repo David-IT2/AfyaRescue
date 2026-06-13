@@ -79,16 +79,17 @@
     @endforelse
 </div>
 
-<script>
-// GPS: send location to server every 10 seconds for each active ambulance
-const ambulanceIds = @json(
-    $emergencies
-        ->whereIn('status', ['assigned','enroute','arrived'])
-        ->map(fn($e) => $e->ambulance_id)
+@php
+    $activeAmbulanceIds = $emergencies
+        ->whereIn('status', ['assigned', 'enroute', 'arrived'])
+        ->pluck('ambulance_id')
         ->filter()
         ->unique()
-        ->values()
-);
+        ->values();
+@endphp
+<script>
+// GPS: send location to server every 10 seconds for each active ambulance
+const ambulanceIds = @json($activeAmbulanceIds);
 
 const label = document.getElementById('gps-label');
 
