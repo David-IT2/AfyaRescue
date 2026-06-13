@@ -58,6 +58,8 @@ class EmergencyRequestController extends Controller
         );
 
         if (! $request->user()) {
+            $emergency->load(['hospital:id,name']);
+
             return view('emergency.guest-confirmation', ['emergency' => $emergency]);
         }
 
