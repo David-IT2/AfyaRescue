@@ -17,6 +17,13 @@ Route::get('/', function () {
         ->header('Pragma', 'no-cache');
 })->name('home');
 
+Route::get('/session/keep-alive', function () {
+    return response()->json([
+        'ok' => true,
+        'csrf_token' => csrf_token(),
+    ]);
+})->name('session.keep-alive');
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
