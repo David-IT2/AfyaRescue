@@ -1,12 +1,12 @@
 services:
   - type: web
     name: afyarescue-web
-    env: php
+    env: docker
     branch: main
     plan: starter
     region: oregon
-    buildCommand: composer install --no-interaction --prefer-dist --optimize-autoloader && npm ci && npm run build
-    startCommand: vendor/bin/heroku-php-apache2 public/
+    dockerfilePath: Dockerfile
+    startCommand: apache2-foreground
     envVars:
       - key: APP_ENV
         value: production
@@ -40,11 +40,11 @@ services:
         value: AfyaRescue
   - type: worker
     name: afyarescue-queue
-    env: php
+    env: docker
     branch: main
     plan: starter
     region: oregon
-    buildCommand: composer install --no-interaction --prefer-dist --optimize-autoloader
+    dockerfilePath: Dockerfile
     startCommand: php artisan queue:listen --tries=1 --timeout=120
     envVars:
       - key: APP_ENV
