@@ -1,0 +1,79 @@
+services:
+  - type: web
+    name: afyarescue-web
+    env: php
+    branch: main
+    plan: starter
+    region: oregon
+    buildCommand: composer install --no-interaction --prefer-dist --optimize-autoloader && npm ci && npm run build
+    startCommand: vendor/bin/heroku-php-apache2 public/
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://<your-render-domain>
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: <supabase-host>
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: <supabase-database>
+      - key: DB_USERNAME
+        value: <supabase-username>
+      - key: DB_PASSWORD
+        value: <supabase-password>
+      - key: DB_SSLMODE
+        value: require
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: MAIL_MAILER
+        value: log
+      - key: VITE_APP_NAME
+        value: AfyaRescue
+  - type: worker
+    name: afyarescue-queue
+    env: php
+    branch: main
+    plan: starter
+    region: oregon
+    buildCommand: composer install --no-interaction --prefer-dist --optimize-autoloader
+    startCommand: php artisan queue:listen --tries=1 --timeout=120
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://<your-render-domain>
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: <supabase-host>
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: <supabase-database>
+      - key: DB_USERNAME
+        value: <supabase-username>
+      - key: DB_PASSWORD
+        value: <supabase-password>
+      - key: DB_SSLMODE
+        value: require
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: MAIL_MAILER
+        value: log
+      - key: VITE_APP_NAME
+        value: AfyaRescue
