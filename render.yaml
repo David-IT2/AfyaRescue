@@ -8,26 +8,26 @@ services:
     dockerfilePath: Dockerfile
     startCommand: apache2-foreground
     envVars:
+      - key: APP_KEY
+        value: base64:ZhE1Y3v+VmJNr+0fMGbAeI1UXdUeQCGHh1jj3ismcHM=
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
       - key: APP_URL
-        value: https://<your-render-domain>
+        value: https://afyarescue-2.onrender.com
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
-        value: <supabase-host>
+        value: dpg-d8s6u1j7uimc73813vu0-a
       - key: DB_PORT
         value: 5432
       - key: DB_DATABASE
-        value: <supabase-database>
+        value: afyarescue_db
       - key: DB_USERNAME
-        value: <supabase-username>
+        value: afyarescue_db_user
       - key: DB_PASSWORD
-        value: <supabase-password>
-      - key: DB_SSLMODE
-        value: require
+        value: tNqsO7r6OX4P3MhtbMD8m0rlLPvZd8L0
       - key: QUEUE_CONNECTION
         value: database
       - key: SESSION_DRIVER
@@ -47,26 +47,26 @@ services:
     dockerfilePath: Dockerfile
     startCommand: php artisan queue:listen --tries=1 --timeout=120
     envVars:
+      - key: APP_KEY
+        value: base64:ZhE1Y3v+VmJNr+0fMGbAeI1UXdUeQCGHh1jj3ismcHM=
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
       - key: APP_URL
-        value: https://<your-render-domain>
+        value: https://afyarescue-2.onrender.com
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
-        value: <supabase-host>
+        value: dpg-d8s6u1j7uimc73813vu0-a
       - key: DB_PORT
         value: 5432
       - key: DB_DATABASE
-        value: <supabase-database>
+        value: afyarescue_db
       - key: DB_USERNAME
-        value: <supabase-username>
+        value: afyarescue_db_user
       - key: DB_PASSWORD
-        value: <supabase-password>
-      - key: DB_SSLMODE
-        value: require
+        value: tNqsO7r6OX4P3MhtbMD8m0rlLPvZd8L0
       - key: QUEUE_CONNECTION
         value: database
       - key: SESSION_DRIVER
