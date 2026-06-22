@@ -1,9 +1,7 @@
 <?php
-
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -13,6 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\TrustProxies::class);
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
@@ -24,7 +23,6 @@ return Application::configure(basePath: dirname(__DIR__))
                     'message' => 'Your session expired. Please refresh the page and try again.',
                 ], 419);
             }
-
             return redirect()->back()
                 ->withInput($request->except('_token', 'password', 'password_confirmation'))
                 ->with('error', 'Your session expired. Please refresh the page and try again.');
